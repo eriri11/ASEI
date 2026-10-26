@@ -1,0 +1,91 @@
+experiment:
+  source_domain: mr
+  target_domain: ct
+  seed: 42
+runtime:
+  device: cuda:0
+data:
+  root: data/mmwhs
+  center_slice: 1
+  batch_size: 16
+  num_workers: 4
+  align_test_orientation: true
+model:
+  base_channels: 32
+  normalization: groupnorm
+  norm_groups: 8
+source_checkpoint: runs/source_mr/source_best.pt
+adaptation:
+  medsam_checkpoint: checkpoints/medsam_vit_b.pth
+  embedding_cache_root: runs/cache/medsam_fp32
+  encoder_batch_size: 2
+  decoder_batch_size: 24
+  warmup:
+    epochs: null
+    max_steps: 1500
+    learning_rate: 1.0e-05
+    weight_decay: 0.0
+    optimizer_betas:
+    - 0.9
+    - 0.99
+    ema_decay: 0.98
+    consistency_weight: 1.0
+    enabled: true
+    lr_gamma: 0.8
+  glfp:
+    num_rounds: 2
+    seed_confidence: 0.9
+    minimum_seed_pixels: 16
+    weak_gammas:
+    - 0.9
+    - 1.1
+    global_scales:
+    - 1.0
+    - 1.1
+    - 1.2
+    thresholds:
+    - 0.95
+    - 0.95
+    - 0.95
+    - 0.95
+    myo_radius: 3
+    negative_threshold: 0.1
+    background_exclusion_threshold: 0.5
+    local:
+      initial_side: 12
+      step: 4
+      maximum_side: 24
+      maximum_boxes: 6
+      minimum_seeds: 16
+      minimum_target_fraction: 0.6
+      maximum_foreign_core_fraction: 0.05
+    feedback:
+      enabled: true
+      maximum_extra_boxes: 6
+      minimum_new_query_fraction: 0.25
+      candidate_center_cap: 512
+      high_confidence_centers: 32
+      match_MT_budget: true
+  segments: 1
+  prepare_only: false
+  training:
+    epochs: null  # Train to max_steps, repeating the target loader as needed.
+    max_steps: 1000
+    learning_rate: 1.0e-04
+    weight_decay: 0.0
+    optimizer_betas:
+    - 0.9
+    - 0.99
+    ema_decay: 0.98
+    consistency_weight: 1.0
+    lr_gamma: 0.8
+    ce_weight: 1.0
+    dice_weight: 1.0
+  ecss:
+    enabled: true
+    radius: 12
+    pixel_weight: 0.1
+    maximum_mass_fraction: 0.1
+    loss_weight: 1.0
+output:
+  root: runs/mr_to_ct

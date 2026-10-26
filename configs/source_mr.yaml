@@ -1,0 +1,34 @@
+experiment:
+  source_domain: mr
+  target_domain: ct
+  seed: 42
+runtime:
+  device: cuda:0
+data:
+  root: data/mmwhs
+  center_slice: 1
+  batch_size: 16
+  num_workers: 4
+  align_test_orientation: true
+model:
+  base_channels: 32
+  normalization: groupnorm
+  norm_groups: 8
+source_training:
+  epochs: 20
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  optimizer_betas:
+  - 0.9
+  - 0.999
+  lr_gamma: 1.0
+  validation_split: train_holdout
+  validation_fraction: 0.2
+  split_seed: 42
+  loss:
+    ce_weight: 1.0
+    dice_weight: 1.0
+    ignore_background: true
+    class_weights: null
+output:
+  root: runs/source_mr

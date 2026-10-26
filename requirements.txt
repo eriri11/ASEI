@@ -1,0 +1,14 @@
+# Training and evaluation
+torch>=2.1
+numpy>=1.24
+scipy>=1.10
+PyYAML>=6.0
+nibabel>=5.0
+surface-distance>=0.1
+
+# Figure export
+Pillow>=9.1
+matplotlib>=3.6
+
+# Tests
+pytest>=7.0
